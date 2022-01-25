@@ -1,9 +1,23 @@
 <#
-This is an alternative way to the Test-Connection cmdlet.  I have a static list I was using for testing, but can be chaned to read in a txt file.  The "foreach" block cleans up the origianl "ping" results to only display IP's that respond to the 1st icmp packet and stores them in a variable that can be used later.  The catch block only displays the IP's that did not respond to the 1st ICMP packet.  It can be coded to send those results to a file or variable for further analysis
+    .SYNOPSIS 
+        Givin an IP and a list of ports, this script will check to see if those ports are open on the each IP.
+    .DESCRIPTION
+        The Script loops through a list of IPs.  In that loop, it stars looping through the list of Ports.  During that loop it checks to see if that port is open.  It start loop with the TCP ports.  When finished, it starts looping though the UDP ports.  All results are stored in a variable called "OpenPortList" and exports a CSV file to your current directory.  The variable OpenPortList is an object so you can sort, filter or group on its various properties.
+    .PARAMETER IP
+        
+    .PARAMETER TCP
+        
+    .PARAMETER UDP
+                
+    .EXAMPLE
+               
+    .NOTES
+      
+    #>
 
-#>
-
-# $IPList = read-host "Please enter the file path of the host list"
+#############################################################################################
+# Start Ping Sweep
+#############################################################################################
 
 $IPList = 1..255 | ForEach-Object {"10.4.1.$_"}
 
@@ -27,15 +41,13 @@ $ReplyResults | out-file .\OnlineIPs.txt
 ##############################################
 
 <#
+.NOTES
 This information was based off of the work of Jeff Hicks
 
 https://petri.com/building-a-powershell-ping-sweep-tool-adding-a-port-check
 https://docs.microsoft.com/en-us/dotnet/api/system.net.sockets.socket?view=net-6.0
 https://docs.microsoft.com/en-us/dotnet/api/system.net.sockets.tcpclient?view=net-6.0
 #>
-
-# Create the TCP Socket variable using .Net ( Assuming I can do this with UDP as well)
-# $IPS = "10.4.1.180", "127.0.0.1"
 
 $TCPports = 443,1434,139,22,8080
 $UDPports = 53,88,137,138,3702,4500,5050,5353,5355,22
@@ -80,6 +92,15 @@ foreach ($IP in $ReplyResults){
 # Start my UDP Loop Here
 ############################################################
 
+<#
+.NOTES
+This information is based off of work that I found at the following sites
+
+https://docs.microsoft.com/en-us/dotnet/api/system.net.ipendpoint.-ctor?view=net-6.0
+https://gist.github.com/pagliacci/00f438e7371f7116cc57
+https://docs.microsoft.com/en-us/dotnet/api/system.net.sockets.udpclient.receive?view=net-6.0#system-net-sockets-udpclient-receive(system-net-ipendpoint@)
+
+#>
     foreach ($port in $UDPports){
         $udpObject = New-Object System.Net.Sockets.UdpClient
         $udpObject.Client.ReceiveTimeout = 1000
